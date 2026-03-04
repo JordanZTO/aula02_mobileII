@@ -1,30 +1,62 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
-import 'package:aula02/main.dart';
+import 'package:todo_refatoracao_baguncado/features/todos/domain/entities/todo.dart';
+import 'package:todo_refatoracao_baguncado/features/todos/domain/repositories/todo_repository.dart';
+import 'package:todo_refatoracao_baguncado/features/todos/presentation/viewmodels/todo_viewmodel.dart';
+import 'package:todo_refatoracao_baguncado/features/todos/presentation/pages/todos_page.dart';
+
+class FakeTodoRepository implements TodoRepository {
+  @override
+  Future<TodoFetchResult> fetchTodos({bool forceRefresh = false}) async {
+    return const TodoFetchResult(
+      todos: [
+        Todo(id: 1, title: 'Test Todo', completed: false),
+      ],
+      lastSyncLabel: 'now',
+    );
+  }
+
+  @override
+  Future<Todo> addTodo(String title) async {
+    return Todo(id: 99, title: title, completed: false);
+  }
+
+  @override
+  Future<void> updateCompleted({
+    required int id,
+    required bool completed,
+  }) async {}
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('TodosPage renders correctly', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<TodoRepository>(
+            create: (_) => FakeTodoRepository(),
+          ),
+          ChangeNotifierProvider(
+            create: (context) => TodoViewModel(context.read<TodoRepository>()),
+          ),
+        ],
+        child: const MaterialApp(
+          home: TodosPage(),
+        ),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpAndSettle();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    // Verifica se título aparece
+    expect(find.text('Todos'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verifica se botão + existe
+    expect(find.byIcon(Icons.add), findsOneWidget);
+
+    // Verifica se o todo fake aparece
+    expect(find.text('Test Todo'), findsOneWidget);
   });
 }
