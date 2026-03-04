@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 
-import '../repositories/todo_repository_impl.dart';
-import '../models/todo.dart';
+import '../../domain/entities/todo.dart';
+import '../../domain/repositories/todo_repository.dart';
 
 class TodoViewModel extends ChangeNotifier {
-  final TodoRepositoryImpl _repo = TodoRepositoryImpl(); // bagunça: impl direto aqui
+  final TodoRepository _repo;
+
+  TodoViewModel(this._repo);
 
   bool isLoading = false;
   String? errorMessage;
@@ -18,7 +20,8 @@ class TodoViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final result = await _repo.fetchTodos(forceRefresh: forceRefresh);
+      final result =
+          await _repo.fetchTodos(forceRefresh: forceRefresh);
       items
         ..clear()
         ..addAll(result.todos);
@@ -32,12 +35,12 @@ class TodoViewModel extends ChangeNotifier {
   }
 
   Future<void> addTodo(String title) async {
-    // validação mínima fica no VM (ok)
     if (title.trim().isEmpty) {
       errorMessage = 'Título não pode ser vazio.';
       notifyListeners();
       return;
     }
+
     try {
       final created = await _repo.addTodo(title);
       items.insert(0, created);
@@ -59,7 +62,6 @@ class TodoViewModel extends ChangeNotifier {
     try {
       await _repo.updateCompleted(id: id, completed: completed);
     } catch (e) {
-      // rollback
       items[idx] = old;
       errorMessage = 'Falha ao atualizar: $e';
       notifyListeners();

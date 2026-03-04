@@ -1,4 +1,4 @@
-import '../models/todo.dart';
+import '../entities/todo.dart';
 
 abstract class TodoRepository {
   Future<TodoFetchResult> fetchTodos({bool forceRefresh = false});
@@ -10,5 +10,8 @@ class TodoFetchResult {
   final List<Todo> todos;
   final String? lastSyncLabel;
 
-  const TodoFetchResult({required this.todos, required this.lastSyncLabel});
+  const TodoFetchResult({
+    required this.todos,
+    required this.lastSyncLabel,
+  });
 }
