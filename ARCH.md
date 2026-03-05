@@ -2,11 +2,14 @@
 
 ## Estrutura final (cole a árvore de pastas)
 
-  lib/
+## Estrutura final
+
+```text
+lib/
   main.dart
 
   core/
-    error/
+    errors/
       app_error.dart
 
   features/
@@ -27,12 +30,13 @@
           todo_repository.dart
 
       presentation/
-        viewmodels/
-          todo_viewmodel.dart
         pages/
           todos_page.dart
+        viewmodels/
+          todo_viewmodel.dart
         widgets/
           add_todo_dialog.dart
+```
 
 ## Fluxo de dependências
 UI -> ViewModel -> Repository -> (RemoteDataSource, LocalDataSource)
