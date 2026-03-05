@@ -2,7 +2,7 @@
 
 ## Estrutura final (cole a árvore de pastas)
 
-lib/
+  lib/
   main.dart
 
   core/
